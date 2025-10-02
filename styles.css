@@ -133,33 +133,39 @@ body {
 }
 
 .formation-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem 0;
     min-height: 850px;
     position: relative;
 }
 
 .formation-row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
+    flex-wrap: wrap;
 }
 
 .player-slot {
     background: rgba(255,255,255,0.95);
     border: 3px solid rgba(7,242,136,0.4);
-    border-radius: 12px;
-    padding: 1rem;
-    width: 140px;
+    border-radius: 16px;
+    padding: 1.2rem;
+    width: 160px;
+    min-height: 120px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
     position: relative;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .player-slot:hover {
@@ -172,6 +178,11 @@ body {
     border-style: dashed;
     background: rgba(255,255,255,0.7);
     border-color: rgba(255,255,255,0.5);
+}
+
+.player-slot.empty:hover {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(7,242,136,0.6);
 }
 
 .position-badge {
