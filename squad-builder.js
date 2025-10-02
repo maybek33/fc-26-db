@@ -393,13 +393,32 @@ function clearSquad() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
+function initSquadBuilder() {
+    // Check if required elements exist
+    const formationGrid = document.getElementById('formationGrid');
+    if (!formationGrid) {
+        console.error('Squad Builder: formationGrid element not found. Make sure the HTML is properly embedded.');
+        return;
+    }
+    
     loadPlayers();
-});
+}
+
+// Try multiple initialization methods for WordPress compatibility
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSquadBuilder);
+} else {
+    // DOM already loaded
+    initSquadBuilder();
+}
+
+// Also try after a short delay for WordPress preview mode
+setTimeout(initSquadBuilder, 500);
 
 // Close modal when clicking outside
-document.getElementById('playerModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'playerModal') {
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('playerModal');
+    if (modal && e.target.id === 'playerModal') {
         closeModal();
     }
 });
