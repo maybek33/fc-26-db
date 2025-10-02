@@ -100,12 +100,17 @@ function populateFilters() {
 // Render the formation
 function renderFormation() {
     const grid = document.getElementById('formationGrid');
+    if (!grid) return;
+    
     grid.innerHTML = '';
     
     const formationRows = formations[currentFormation];
     currentSquad = [];
     
-    formationRows.forEach((row, rowIndex) => {
+    // Reverse the rows so goalkeeper is at bottom
+    const reversedRows = [...formationRows].reverse();
+    
+    reversedRows.forEach((row, rowIndex) => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'formation-row';
         
@@ -300,9 +305,19 @@ function filterPlayers() {
 // Display player list in modal
 function displayPlayerList(players) {
     const listDiv = document.getElementById('playerList');
+    if (!listDiv) return;
+    
     listDiv.innerHTML = '';
     
-    players.slice(0, 100).forEach(player => {
+    // Limit to 50 players for better performance
+    const displayPlayers = players.slice(0, 50);
+    
+    if (displayPlayers.length === 0) {
+        listDiv.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6b7280;">No players found matching your filters.</div>';
+        return;
+    }
+    
+    displayPlayers.forEach(player => {
         const chemistry = calculatePlayerChemistry(selectedSlotIndex, player);
         const card = document.createElement('div');
         card.className = 'player-card';
@@ -319,11 +334,22 @@ function displayPlayerList(players) {
                 <div class="player-card-meta">${player.position} • ${player.club} • ${player.nationality}</div>
             </div>
             <div class="player-card-chem ${chemClass}">Chem: ${chemistry}</div>
-            <div class="player-card-price">$${player.price.toLocaleString()}</div>
+            <div class="player-card-price">${player.price.toLocaleString()}</div>
         `;
         
         listDiv.appendChild(card);
     });
+    
+    // Add note if more players available
+    if (players.length > 50) {
+        const note = document.createElement('div');
+        note.style.padding = '1rem';
+        note.style.textAlign = 'center';
+        note.style.color = '#6b7280';
+        note.style.fontSize = '0.9rem';
+        note.textContent = `Showing top 50 of ${players.length} players. Use filters to narrow results.`;
+        listDiv.appendChild(note);
+    }
 }
 
 // Select a player
