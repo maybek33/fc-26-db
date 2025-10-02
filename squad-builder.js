@@ -48,9 +48,57 @@ const positionCompatibility = {
 
 // Load players from GitHub
 async function loadPlayers() {
+    const gridElement = document.getElementById('formationGrid');
+    
+    // Set a timeout to detect stuck loading
+    const loadingTimeout = setTimeout(() => {
+        if (gridElement && allPlayers.length === 0) {
+            gridElement.innerHTML = `<div class="loading" style="color: #ef4444; padding: 2rem;">
+                Loading is taking longer than expected. Please check:<br>
+                1. Your internet connection<br>
+                2. That the JSON file exists on GitHub<br>
+                3. Browser console for errors (F12)<br>
+                <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">Reload Page</button>
+            </div>`;
+        }
+    }, 10000); // 10 second timeout
+    
     try {
-        const response = await fetch('https://cdn.jsdelivr.net/gh/maybek33/fc-26-db@6325a33c44395bc639a9c03fee5c80e8f95c25fa/squad_players%20(1).json');
+        if (gridElement) {
+            gridElement.innerHTML = '<div class="loading">Loading players...</div>';
+        }
+        
+        console.log('Fetching player data from GitHub...');
+        
+        // Try multiple CDN options
+        let response;
+        const urls = [
+            'https://cdn.jsdelivr.net/gh/maybek33/fc-26-db@main/squad_players%20(1).json',
+            'https://raw.githubusercontent.com/maybek33/fc-26-db/main/squad_players%20(1).json'
+        ];
+        
+        for (const url of urls) {
+            try {
+                console.log(`Trying ${url}...`);
+                response = await fetch(url);
+                if (response.ok) {
+                    console.log(`Success with ${url}`);
+                    break;
+                }
+            } catch (e) {
+                console.log(`Failed with ${url}:`, e.message);
+            }
+        }
+        
+        if (!response || !response.ok) {
+            throw new Error(`Could not load player data. Status: ${response?.status || 'Network error'}`);
+        }
+        
+        console.log('Parsing player data...');
         allPlayers = await response.json();
+        
+        clearTimeout(loadingTimeout);
+        console.log(`Successfully loaded ${allPlayers.length} players`);
         
         // Clean up the data
         allPlayers = allPlayers.map(player => ({
@@ -60,18 +108,50 @@ async function loadPlayers() {
             is_icon: player.is_icon || false
         }));
         
+        console.log('Initializing app...');
         initializeApp();
+        
     } catch (error) {
+        clearTimeout(loadingTimeout);
         console.error('Error loading players:', error);
-        document.querySelector('.container').innerHTML = '<div class="loading">Error loading player data. Please refresh the page.</div>';
+        if (gridElement) {
+            gridElement.innerHTML = `<div class="loading" style="color: #ef4444; padding: 2rem;">
+                <strong>Error loading player data:</strong><br>
+                ${error.message}<br><br>
+                Please verify that:<br>
+                • The file 'squad_players (1).json' exists in your GitHub repository<br>
+                • The file is named correctly with the space and (1)<br>
+                • Your GitHub repository is public<br><br>
+                <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">Try Again</button>
+            </div>`;
+        }
     }
 }
 
 // Initialize the app
 function initializeApp() {
-    populateFilters();
-    renderFormation();
-    updateStats();
+    console.log('Initializing app with', allPlayers.length, 'players');
+    
+    try {
+        console.log('Populating filters...');
+        populateFilters();
+        
+        console.log('Rendering formation...');
+        renderFormation();
+        
+        console.log('Updating stats...');
+        updateStats();
+        
+        console.log('Squad builder ready!');
+    } catch (error) {
+        console.error('Error during initialization:', error);
+        const gridElement = document.getElementById('formationGrid');
+        if (gridElement) {
+            gridElement.innerHTML = `<div class="loading" style="color: #ef4444;">
+                Initialization error: ${error.message}
+            </div>`;
+        }
+    }
 }
 
 // Populate filter dropdowns
