@@ -73,8 +73,8 @@ async function loadPlayers() {
         // Try multiple CDN options
         let response;
         const urls = [
-            'https://cdn.jsdelivr.net/gh/maybek33/fc-26-db@main/squad_players%20(1).json',
-            'https://raw.githubusercontent.com/maybek33/fc-26-db/main/squad_players%20(1).json'
+            'https://cdn.jsdelivr.net/gh/maybek33/fc-26-db@main/squad_players.json',
+            'https://raw.githubusercontent.com/maybek33/fc-26-db/main/squad_players.json'
         ];
         
         for (const url of urls) {
