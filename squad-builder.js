@@ -343,15 +343,30 @@ function openPlayerModal(slotIndex, position) {
 
 // Close modal
 function closeModal() {
-    document.getElementById('playerModal').classList.remove('active');
+    const modal = document.getElementById('playerModal');
+    if (modal) {
+        modal.classList.remove('active');
+        console.log('Modal closed');
+    }
 }
 
 // Filter and display players
 function filterPlayers() {
-    const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
-    const nationFilter = document.getElementById('nationFilter').value;
-    const leagueFilter = document.getElementById('leagueFilter').value;
+    const searchBox = document.getElementById('playerSearch');
+    const nationFilter = document.getElementById('nationFilter');
+    const leagueFilter = document.getElementById('leagueFilter');
+    
+    if (!searchBox || !nationFilter || !leagueFilter) {
+        console.error('Filter elements not found');
+        return;
+    }
+    
+    const searchTerm = searchBox.value.toLowerCase();
+    const nationValue = nationFilter.value;
+    const leagueValue = leagueFilter.value;
     const position = getSlotPosition(selectedSlotIndex);
+    
+    console.log('Filtering:', { searchTerm, nationValue, leagueValue, position });
     
     let filtered = allPlayers.filter(player => {
         const compatiblePositions = positionCompatibility[position] || [position];
@@ -361,8 +376,8 @@ function filterPlayers() {
             player.club.toLowerCase().includes(searchTerm) ||
             player.league.toLowerCase().includes(searchTerm) ||
             player.nationality.toLowerCase().includes(searchTerm);
-        const nationMatch = !nationFilter || player.nationality === nationFilter;
-        const leagueMatch = !leagueFilter || player.league === leagueFilter;
+        const nationMatch = !nationValue || player.nationality === nationValue;
+        const leagueMatch = !leagueValue || player.league === leagueValue;
         
         return positionMatch && searchMatch && nationMatch && leagueMatch;
     });
@@ -379,6 +394,7 @@ function filterPlayers() {
         filtered.sort((a, b) => b.rating - a.rating);
     }
     
+    console.log('Filtered players:', filtered.length);
     displayPlayerList(filtered);
 }
 
@@ -507,9 +523,9 @@ function initSquadBuilder() {
         return false;
     }
     
-    console.log('Squad Builder elements found, loading players...');
+    console.log('Squad Builder elements found, setting up event listeners...');
     
-    // Attach event listeners
+    // Attach event listeners with error checking
     const formationSelect = document.getElementById('formationSelect');
     const suggestBtn = document.getElementById('suggestBtn');
     const clearBtn = document.getElementById('clearBtn');
@@ -518,39 +534,84 @@ function initSquadBuilder() {
     const playerSearch = document.getElementById('playerSearch');
     const nationFilter = document.getElementById('nationFilter');
     const leagueFilter = document.getElementById('leagueFilter');
+    const playerModal = document.getElementById('playerModal');
     
     if (formationSelect) {
-        formationSelect.addEventListener('change', (e) => changeFormation(e.target.value));
+        formationSelect.addEventListener('change', (e) => {
+            console.log('Formation changed to:', e.target.value);
+            changeFormation(e.target.value);
+        });
+        console.log('✓ Formation select listener attached');
     }
     
     if (suggestBtn) {
-        suggestBtn.addEventListener('click', showChemistrySuggestions);
+        suggestBtn.addEventListener('click', () => {
+            console.log('Suggest button clicked');
+            showChemistrySuggestions();
+        });
+        console.log('✓ Suggest button listener attached');
     }
     
     if (clearBtn) {
-        clearBtn.addEventListener('click', clearSquad);
+        clearBtn.addEventListener('click', () => {
+            console.log('Clear button clicked');
+            clearSquad();
+        });
+        console.log('✓ Clear button listener attached');
     }
     
     if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeModal);
+        closeModalBtn.addEventListener('click', () => {
+            console.log('Close modal button clicked');
+            closeModal();
+        });
+        console.log('✓ Close modal button listener attached');
     }
     
     if (chemToggle) {
-        chemToggle.addEventListener('click', toggleChemSort);
+        chemToggle.addEventListener('click', () => {
+            console.log('Chem toggle clicked');
+            toggleChemSort();
+        });
+        console.log('✓ Chem toggle listener attached');
     }
     
     if (playerSearch) {
-        playerSearch.addEventListener('keyup', filterPlayers);
+        playerSearch.addEventListener('input', () => {
+            console.log('Search input changed');
+            filterPlayers();
+        });
+        console.log('✓ Player search listener attached');
     }
     
     if (nationFilter) {
-        nationFilter.addEventListener('change', filterPlayers);
+        nationFilter.addEventListener('change', () => {
+            console.log('Nation filter changed');
+            filterPlayers();
+        });
+        console.log('✓ Nation filter listener attached');
     }
     
     if (leagueFilter) {
-        leagueFilter.addEventListener('change', filterPlayers);
+        leagueFilter.addEventListener('change', () => {
+            console.log('League filter changed');
+            filterPlayers();
+        });
+        console.log('✓ League filter listener attached');
     }
     
+    // Click outside modal to close
+    if (playerModal) {
+        playerModal.addEventListener('click', (e) => {
+            if (e.target.id === 'playerModal') {
+                console.log('Clicked outside modal');
+                closeModal();
+            }
+        });
+        console.log('✓ Modal backdrop listener attached');
+    }
+    
+    console.log('Loading players...');
     loadPlayers();
     return true;
 }
