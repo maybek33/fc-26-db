@@ -49,7 +49,7 @@ const positionCompatibility = {
 // Load players from GitHub
 async function loadPlayers() {
     try {
-        const response = await fetch('https://raw.githubusercontent.com/maybek33/fc-26-db/main/squad_players%20(1).json');
+        const response = await fetch('https://cdn.jsdelivr.net/gh/maybek33/fc-26-db@6325a33c44395bc639a9c03fee5c80e8f95c25fa/squad_players%20(1).json');
         allPlayers = await response.json();
         
         // Clean up the data
