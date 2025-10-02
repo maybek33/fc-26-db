@@ -503,23 +503,86 @@ function initSquadBuilder() {
     // Check if required elements exist
     const formationGrid = document.getElementById('formationGrid');
     if (!formationGrid) {
-        console.error('Squad Builder: formationGrid element not found. Make sure the HTML is properly embedded.');
-        return;
+        console.error('Squad Builder: formationGrid element not found. Retrying...');
+        return false;
+    }
+    
+    console.log('Squad Builder elements found, loading players...');
+    
+    // Attach event listeners
+    const formationSelect = document.getElementById('formationSelect');
+    const suggestBtn = document.getElementById('suggestBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const chemToggle = document.getElementById('chemToggle');
+    const playerSearch = document.getElementById('playerSearch');
+    const nationFilter = document.getElementById('nationFilter');
+    const leagueFilter = document.getElementById('leagueFilter');
+    
+    if (formationSelect) {
+        formationSelect.addEventListener('change', (e) => changeFormation(e.target.value));
+    }
+    
+    if (suggestBtn) {
+        suggestBtn.addEventListener('click', showChemistrySuggestions);
+    }
+    
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearSquad);
+    }
+    
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    }
+    
+    if (chemToggle) {
+        chemToggle.addEventListener('click', toggleChemSort);
+    }
+    
+    if (playerSearch) {
+        playerSearch.addEventListener('keyup', filterPlayers);
+    }
+    
+    if (nationFilter) {
+        nationFilter.addEventListener('change', filterPlayers);
+    }
+    
+    if (leagueFilter) {
+        leagueFilter.addEventListener('change', filterPlayers);
     }
     
     loadPlayers();
+    return true;
 }
 
 // Try multiple initialization methods for WordPress compatibility
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSquadBuilder);
-} else {
-    // DOM already loaded
-    initSquadBuilder();
+let initAttempts = 0;
+const maxAttempts = 10;
+
+function tryInit() {
+    if (initSquadBuilder()) {
+        console.log('Squad Builder initialized successfully');
+        return;
+    }
+    
+    initAttempts++;
+    if (initAttempts < maxAttempts) {
+        console.log(`Retry attempt ${initAttempts}/${maxAttempts}...`);
+        setTimeout(tryInit, 500);
+    } else {
+        console.error('Failed to initialize Squad Builder after', maxAttempts, 'attempts');
+        const grid = document.getElementById('formationGrid');
+        if (grid) {
+            grid.innerHTML = '<div class="loading" style="color: #ef4444;">Failed to initialize. Please refresh the page.</div>';
+        }
+    }
 }
 
-// Also try after a short delay for WordPress preview mode
-setTimeout(initSquadBuilder, 500);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInit);
+} else {
+    tryInit();
+}
 
 // Close modal when clicking outside
 document.addEventListener('click', (e) => {
